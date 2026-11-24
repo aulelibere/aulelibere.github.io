@@ -1,0 +1,69 @@
+name: Aggiorna orari e pubblica
+
+on:
+  schedule:
+    # ogni ora, dalle 6 alle 20 ora italiana d'inverno (7–21 d'estate). Gli orari sono in UTC.
+    - cron: '17 5-19 * * *'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  dati:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write     # solo per il commit mensile che tiene attiva la pianificazione
+      actions: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Prepara il sito
+        run: |
+          mkdir -p _site
+          rsync -a --exclude '.git' --exclude '.github' --exclude 'scripts' --exclude '_site' ./ _site/
+
+      - name: Scarica gli orari dall'università
+        # se fallisce il sito viene pubblicato lo stesso: l'app ripiega sulle richieste dirette
+        continue-on-error: true
+        run: node scripts/aggiorna-dati.mjs _site "https://aulelibere.github.io/"
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      # GitHub sospende le esecuzioni pianificate dopo 60 giorni senza modifiche al repository:
+      # una volta al mese aggiorno un file per evitarlo.
+      - name: Mantieni attiva la pianificazione
+        if: github.event_name == 'schedule'
+        run: |
+          mese=$(TZ=Europe/Rome date +%Y-%m)
+          if [ "$(cat .github/attivo 2>/dev/null)" != "$mese" ]; then
+            echo "$mese" > .github/attivo
+            git config user.name "github-actions[bot]"
+            git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+            git add .github/attivo
+            git commit -m "Pianificazione attiva ($mese)"
+            git push
+          fi
+
+  pubblica:
+    needs: dati
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+      actions: read
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v5
