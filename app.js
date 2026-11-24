@@ -146,6 +146,9 @@
     #al-inst .ok{background:var(--ac);color:var(--on);padding:10px 14px}
     #al-inst .no{background:none;color:var(--mu);padding:6px;font-size:20px;line-height:1}
     @keyframes al-su{from{transform:translateY(120%)}to{transform:none}}
+    #al-fb{display:block;margin:22px 0 4px;padding:12px;border-radius:12px;border:1px dashed var(--bd);background:var(--sf);
+      color:var(--ac);font-weight:600;text-align:center;text-decoration:none}
+    #al-fb-n{margin:0 0 70px;font-size:12px;color:var(--mu);text-align:center}
     .al-ticks{display:flex;justify-content:space-between;font-size:10px;color:var(--mu);margin-top:2px}
   </style>
   <div id="al-head">
@@ -162,11 +165,26 @@
       <label class="pc" title="Mostra prima le aule con le prese per il PC"><input type="checkbox" id="al-pc"><span>🔌 PC</span></label>
     </div>
   </div>
-  <div id="al-body"><div id="al-status">Avvio…</div><div id="al-out"></div></div>`;
+  <div id="al-body"><div id="al-status">Avvio…</div><div id="al-out"></div>
+    <a id="al-fb" href="#" target="_blank" rel="noopener">💬 Suggerimenti e segnalazioni</a>
+    <p id="al-fb-n">Hai trovato un errore o hai un'idea? Il modulo è anonimo.</p></div>`;
   document.body.appendChild(panel);
   const $ = s => panel.querySelector(s);
   $('#al-now').onclick = () => { cache.clear(); const n = new Date(); $('#al-day').value = isoDay(n); $('#al-time').value = hhmm(n); run(); };
   const status = t => { $('#al-status').textContent = t; };
+
+  // Modulo Google anonimo per suggerimenti e segnalazioni: precompilo i dettagli di ciò che si stava guardando
+  const MODULO = 'https://docs.google.com/forms/d/e/1FAIpQLSeyGnxiCHDgDTpsxyFJVrsXedcJjeVB5fdDHP4Kagtocl5Wpw/viewform';
+  const linkModulo = () => {
+    const ed = ($('#al-ed').selectedOptions[0]?.textContent || '').split(' — ')[0];
+    const dett = [`Giorno ${$('#al-day').value}`, `ora ${$('#al-time').value}`, ed,
+      $('#al-q').value ? `ricerca "${$('#al-q').value}"` : '', $('#al-pc').checked ? 'PC attivo' : '',
+      matchMedia('(display-mode: standalone)').matches ? 'app installata' : 'browser'].filter(Boolean).join(' · ');
+    const p = new URLSearchParams({ usp: 'pp_url', 'entry.867016280': dett });
+    if ($('#al-q').value) p.set('entry.1792769006', $('#al-q').value);
+    return `${MODULO}?${p}`;
+  };
+  $('#al-fb').addEventListener('click', () => { $('#al-fb').href = linkModulo(); });
 
   // ---------- invito a installare l'app (solo su telefono, solo se non è già installata) ----------
   try { navigator.serviceWorker?.register('sw.js'); } catch { }
