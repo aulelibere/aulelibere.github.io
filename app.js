@@ -134,6 +134,16 @@
     .al-closed h3{margin:10px 0 6px;font-size:22px;color:var(--tx)}
     .al-closed p{margin:4px 0;color:var(--tx)}
     .al-closed .n{font-size:13px;color:var(--mu);margin-top:10px}
+    #al-inst{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));max-width:620px;margin:0 auto;z-index:5;
+      display:flex;gap:12px;align-items:center;padding:12px 12px 12px 14px;border-radius:16px;background:var(--sf);border:1px solid var(--bd);
+      box-shadow:0 10px 30px rgba(0,0,0,.18);animation:al-su .25s ease-out}
+    #al-inst img{width:44px;height:44px;border-radius:11px;flex-shrink:0}
+    #al-inst .tx{flex:1;font-size:13px;line-height:1.35;color:var(--mu)}
+    #al-inst .tx b{display:block;font-size:15px;color:var(--tx)}
+    #al-inst button{border:0;border-radius:10px;font:600 14px system-ui,-apple-system,sans-serif;cursor:pointer}
+    #al-inst .ok{background:var(--ac);color:var(--on);padding:10px 14px}
+    #al-inst .no{background:none;color:var(--mu);padding:6px;font-size:20px;line-height:1}
+    @keyframes al-su{from{transform:translateY(120%)}to{transform:none}}
     .al-ticks{display:flex;justify-content:space-between;font-size:10px;color:var(--mu);margin-top:2px}
   </style>
   <div id="al-head">
@@ -155,6 +165,43 @@
   const $ = s => panel.querySelector(s);
   $('#al-now').onclick = () => { cache.clear(); const n = new Date(); $('#al-day').value = isoDay(n); $('#al-time').value = hhmm(n); run(); };
   const status = t => { $('#al-status').textContent = t; };
+
+  // ---------- invito a installare l'app (solo su telefono, solo se non è già installata) ----------
+  try { navigator.serviceWorker?.register('sw.js'); } catch { }
+  (() => {
+    const installata = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const android = /android/i.test(navigator.userAgent);
+    const rifiutato = Date.now() - (store.get().installNo || 0) < 14 * 86400e3;   // dopo "non ora" riappare tra 2 settimane
+    if (installata || rifiutato || !(ios || android)) return;
+    function mostra(testo, conPulsante, onOk) {
+      if (panel.querySelector('#al-inst')) return;
+      const b = document.createElement('div');
+      b.id = 'al-inst';
+      b.innerHTML = `<img src="icon-192.png" alt=""><div class="tx"><b>Scarica l'app</b>${testo}</div>` +
+        (conPulsante ? '<button class="ok" type="button">Installa</button>' : '') +
+        '<button class="no" type="button" aria-label="Non ora">×</button>';
+      b.querySelector('.no').onclick = () => { store.set({ ...store.get(), installNo: Date.now() }); b.remove(); };
+      if (conPulsante) b.querySelector('.ok').onclick = () => { b.remove(); onOk(); };
+      panel.appendChild(b);
+    }
+    if (ios) {
+      // Safari non permette l'installazione automatica: spiego i due passaggi
+      setTimeout(() => mostra('Tocca <b style="display:inline;font-size:13px">Condividi</b> ' +
+        '<svg width="14" height="16" viewBox="0 0 14 18" style="vertical-align:-2px" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11V1M3.5 4.5 7 1l3.5 3.5M4 7H1.5v10h11V7H10"/></svg>' +
+        ' e poi <b style="display:inline;font-size:13px">Aggiungi alla schermata Home</b>.', false), 1500);
+    } else {
+      // Android: Chrome segnala quando l'app è installabile; uso la sua finestra di installazione
+      addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        mostra('Aprila dalla schermata Home, come un\'app normale.', true, async () => {
+          e.prompt();
+          const scelta = await e.userChoice.catch(() => null);
+          if (!scelta || scelta.outcome !== 'accepted') store.set({ ...store.get(), installNo: Date.now() });
+        });
+      });
+    }
+  })();
 
   // Barra ridotta: scorrendo i risultati restano solo ricerca e PC, più una riga di riepilogo
   // che riapre i filtri. Soglie diverse in discesa e in salita per evitare sfarfallii.
