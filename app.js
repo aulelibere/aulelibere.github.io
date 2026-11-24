@@ -452,8 +452,9 @@
       occupate.map(x => `<div class="al-room"><div class="t"><span>${titolo(x.a)}</span><span>libera dalle ${hhmm(new Date(x.liberaDa))}</span></div>
         <div class="s">${esc(x.ora.nome)} (${hhmm(new Date(x.ora.s))}–${hhmm(new Date(x.ora.e))})</div>${barra(x.lst)}</div>`).join('');
 
-    status(`${libere.length + occupate.length} aule · ${imp.length} impegni in Ateneo quel giorno · ${origine}. ` +
-      `"Libera" = nessun impegno pubblicato su University Planner: un'aula senza lezioni potrebbe comunque essere chiusa o riservata.`);
+    $('#al-status').innerHTML = esc(`${libere.length + occupate.length} aule · ${imp.length} impegni in Ateneo quel giorno · ${origine}. ` +
+      `"Libera" = nessun impegno pubblicato su University Planner: `) +
+      '<b>un\'aula senza lezioni potrebbe comunque essere chiusa o riservata.</b>';
   }
 
   const run = () => calcola().catch(err => status('Errore: ' + err.message));
