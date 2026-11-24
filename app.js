@@ -91,7 +91,9 @@
     #aule-libere-panel{position:fixed;inset:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);max-width:640px;margin:0 auto;
       background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
       display:flex;flex-direction:column;overflow:hidden;text-align:left}
-    #al-now{color:var(--ac);font-weight:700;font-size:18px!important;width:40px!important;height:40px!important;flex-shrink:0;background:var(--free)!important}
+    #al-now{color:var(--ac);width:40px!important;height:40px!important;flex-shrink:0;background:var(--free)!important;display:flex;align-items:center;justify-content:center;padding:0}
+    #al-now svg{width:24px;height:24px;display:block}
+    #al-now:active svg{transform:rotate(-30deg)}
     #aule-libere-panel{--bg:#fff4e6;--sf:#fffaf3;--tx:#1d1d1f;--mu:#7a6a5c;--ac:#e8590c;--on:#fff;--bd:#f0c9a3;--line:#f5dcc2;
       --free:#ffe3c7;--occ:#f6ebdf;--track:#fbd3ad;--busy:#b8551a;color-scheme:light}
     @media (prefers-color-scheme:dark){#aule-libere-panel{--bg:#17120e;--sf:#231b15;--tx:#f7ede3;--mu:#b8a696;--ac:#ff8f45;--on:#1d1d1f;--bd:#4a3829;--line:#33271d;
@@ -150,7 +152,7 @@
     <button type="button" id="al-sum" aria-label="Mostra i filtri"></button>
     <div id="al-ctrl">
       <div class="riga1"><select id="al-ed" aria-label="Edificio"><option>caricamento…</option></select>
-        <button class="x" type="button" title="Torna ad adesso" aria-label="Torna ad adesso" id="al-now">↻</button></div>
+        <button class="x" type="button" title="Torna ad adesso" aria-label="Torna ad adesso" id="al-now"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg></button></div>
       <label class="dt">Giorno<input type="date" id="al-day"></label>
       <label class="dt">Ora<input type="time" id="al-time" step="900"></label>
       <label class="dt">Libera per
