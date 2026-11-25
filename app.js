@@ -113,7 +113,10 @@
     #al-ctrl{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:6px 8px}
     #al-ctrl label{font-size:11px;color:var(--mu);display:flex;flex-direction:column;gap:2px}
     #al-ctrl select,#al-ctrl input{font:16px/1.3 system-ui,-apple-system,sans-serif;padding:9px 8px;min-width:0;width:100%;-webkit-appearance:none;appearance:none;min-height:40px;border:1px solid var(--bd);border-radius:10px;background:var(--sf);color:var(--tx)}
-    #al-ctrl select:focus,#al-ctrl input:focus{outline:2px solid var(--ac);outline-offset:1px}
+    #al-ctrl select:focus,#al-ctrl input:focus{outline:2px solid var(--hl);outline-offset:1px}
+    #aule-libere-panel *{-webkit-tap-highlight-color:transparent}
+    #al-ctrl .pc input:focus{outline:none}
+    #al-ctrl .pc:has(input:focus-visible){outline:2px solid var(--hl);outline-offset:1px}
     #al-ctrl .full{grid-column:1/-1}
     #al-ctrl label{min-width:0}
     #al-ctrl .cerca{grid-column:1/3}
