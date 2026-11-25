@@ -171,7 +171,7 @@
     #al-fb-n{margin:0 0 70px;font-size:12px;color:var(--mu);text-align:center}
   </style>
   <div id="al-head">
-    <div id="al-top"><img src="icon-192.png?v=5" alt=""><div><b>Aule libere</b><span>UdA · Pescara</span></div></div>
+    <div id="al-top"><img src="../icon-192.png?v=5" alt=""><div><b>Aule libere</b><span>UdA · Pescara</span></div></div>
     <button type="button" id="al-sum" aria-label="Mostra i filtri"></button>
     <div id="al-ctrl">
       <div class="riga1"><select id="al-ed" aria-label="Edificio"><option>caricamento…</option></select>
@@ -230,7 +230,7 @@
       if (panel.querySelector('#al-inst')) return;
       const b = document.createElement('div');
       b.id = 'al-inst';
-      b.innerHTML = `<img src="icon-192.png?v=5" alt=""><div class="tx"><b>Scarica l'app</b>${testo}</div>` +
+      b.innerHTML = `<img src="../icon-192.png?v=5" alt=""><div class="tx"><b>Scarica l'app</b>${testo}</div>` +
         (conPulsante ? '<button class="ok" type="button">Installa</button>' : '') +
         '<button class="no" type="button" aria-label="Non ora">×</button>';
       b.querySelector('.no').onclick = () => { store.set({ ...store.get(), installNo: Date.now() }); b.remove(); };

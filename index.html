@@ -2,29 +2,17 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Aule Libere - UdA</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Aule libere">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aule Libere</title>
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#eceef4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1d2024" media="(prefers-color-scheme: dark)">
-<link rel="apple-touch-icon" href="icon-180.png?v=5">
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=5">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=5">
-<link rel="manifest" href="manifest.webmanifest">
-<style>html,body{margin:0;background:#f8f9ff}@media (prefers-color-scheme:dark){html,body{background:#101418}}</style>
+<!-- Per ora c'è solo la sede di Pescara della UdA: chi apre l'indirizzo principale (o l'app installata
+     prima dello spostamento) finisce lì. In futuro qui può esserci l'elenco delle università. -->
+<meta http-equiv="refresh" content="0; url=UdA-Pescara/">
+<script>location.replace('UdA-Pescara/' + location.search + location.hash);</script>
+<style>html,body{margin:0;background:#f8f9ff;font:15px system-ui,sans-serif;color:#191c20}@media (prefers-color-scheme:dark){html,body{background:#101418;color:#e0e2e8}}a{color:inherit}</style>
 </head>
-<body>
-<noscript>Serve JavaScript attivo.</noscript>
-<script>
-  // Statistiche anonime (GoatCounter, senza cookie): "/" = aperto dal browser, "/app" = aperto dall'app installata
-  window.goatcounter = { path: function () {
-    return (matchMedia('(display-mode: standalone)').matches || navigator.standalone === true) ? '/app' : '/'; } };
-</script>
-<script data-goatcounter="https://aulelibere.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-<script src="app.js?v=22"></script>
-</body>
+<body><p style="padding:24px">Vai a <a href="UdA-Pescara/">Aule Libere - UdA Pescara</a></p></body>
 </html>

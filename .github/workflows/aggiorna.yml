@@ -33,7 +33,7 @@ jobs:
       - name: Scarica gli orari dall'università
         # se fallisce il sito viene pubblicato lo stesso: l'app ripiega sulle richieste dirette
         continue-on-error: true
-        run: node scripts/aggiorna-dati.mjs _site "https://aulelibere.github.io/"
+        run: node scripts/aggiorna-dati.mjs _site/UdA-Pescara "https://aulelibere.github.io/UdA-Pescara/"
 
       - uses: actions/upload-pages-artifact@v5
         with:
