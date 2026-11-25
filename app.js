@@ -174,7 +174,8 @@
   <div id="al-body"><div id="al-status">Avvio…</div><div id="al-out"></div>
     <a id="al-fb" href="#" target="_blank" rel="noopener">💬 Suggerimenti e segnalazioni</a>
     <p id="al-fb-n">Hai trovato un errore o hai un'idea? Il modulo è anonimo.<br>
-      Progetto non ufficiale di studenti, non affiliato all'Università "G. d'Annunzio".</p></div>`;
+      Progetto non ufficiale di studenti, non affiliato all'Università "G. d'Annunzio".<br>
+      Statistiche di visita anonime, senza cookie.</p></div>`;
   document.body.appendChild(panel);
   const $ = s => panel.querySelector(s);
   $('#al-now').onclick = () => { cache.clear(); const n = new Date(); $('#al-day').value = isoDay(n); $('#al-time').value = hhmm(n); run(); };
@@ -195,6 +196,16 @@
 
   // ---------- invito a installare l'app (solo su telefono, solo se non è già installata) ----------
   try { navigator.serviceWorker?.register('sw.js'); } catch { }
+
+  // Evento anonimo per GoatCounter (lo script si carica in modo asincrono: aspetto che sia pronto)
+  const conta = (path, title) => {
+    let n = 0;
+    const t = setInterval(() => {
+      if (window.goatcounter?.count) { clearInterval(t); try { goatcounter.count({ path, title, event: true }); } catch { } }
+      else if (++n > 20) clearInterval(t);
+    }, 500);
+  };
+  addEventListener('appinstalled', () => conta('app-installata', 'App installata (Android)'));
   (() => {
     const installata = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);

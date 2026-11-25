@@ -19,6 +19,12 @@
 </head>
 <body>
 <noscript>Serve JavaScript attivo.</noscript>
-<script src="app.js?v=20"></script>
+<script>
+  // Statistiche anonime (GoatCounter, senza cookie): "/" = aperto dal browser, "/app" = aperto dall'app installata
+  window.goatcounter = { path: function () {
+    return (matchMedia('(display-mode: standalone)').matches || navigator.standalone === true) ? '/app' : '/'; } };
+</script>
+<script data-goatcounter="https://aulelibere.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<script src="app.js?v=21"></script>
 </body>
 </html>
