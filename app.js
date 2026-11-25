@@ -202,7 +202,7 @@
       if (panel.querySelector('#al-inst')) return;
       const b = document.createElement('div');
       b.id = 'al-inst';
-      b.innerHTML = `<img src="icon-192.png" alt=""><div class="tx"><b>Scarica l'app</b>${testo}</div>` +
+      b.innerHTML = `<img src="icon-192.png?v=4" alt=""><div class="tx"><b>Scarica l'app</b>${testo}</div>` +
         (conPulsante ? '<button class="ok" type="button">Installa</button>' : '') +
         '<button class="no" type="button" aria-label="Non ora">×</button>';
       b.querySelector('.no').onclick = () => { store.set({ ...store.get(), installNo: Date.now() }); b.remove(); };
