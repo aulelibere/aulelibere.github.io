@@ -106,18 +106,25 @@
     #al-top img{width:40px;height:40px;border-radius:12px;flex-shrink:0}
     #al-top b{display:block;font-size:22px;font-weight:500;line-height:1.15;color:var(--tx)}
     #al-top span{display:block;font-size:13px;color:var(--mu)}
-    #aule-libere-panel.mini #al-top{display:none}
     #al-head #al-ctrl label{color:var(--hdtx)}
     #al-ctrl .riga1{grid-column:1/-1;display:flex;gap:8px;align-items:center}
     #al-ctrl .riga1 select{flex:1}
     #al-now{width:48px;height:48px;flex-shrink:0;border:0;border-radius:50%;cursor:pointer;background:var(--sec);color:var(--osec);display:flex;align-items:center;justify-content:center;padding:0}
     #al-now svg{width:24px;height:24px;display:block}
     #al-now:active svg{transform:rotate(-30deg)}
-    #al-sum{display:none;width:100%;margin:4px 0 10px;padding:12px 16px;border:0;border-radius:28px;background:var(--sch);color:var(--tx);
+    #al-sum{display:block;width:100%;margin:4px 0 10px;padding:12px 16px;border:0;border-radius:28px;background:var(--sch);color:var(--tx);
       font:500 14px/1.3 Roboto,system-ui,-apple-system,"Segoe UI",sans-serif;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    #aule-libere-panel.mini #al-sum{display:block}
-    #aule-libere-panel.mini #al-ctrl .riga1,#aule-libere-panel.mini #al-ctrl .dt{display:none}
-    #al-ctrl{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:10px 8px}
+    /* Barra che si riduce scorrendo: le parti si chiudono/aprono animando l'altezza (grid 1fr ↔ 0fr) */
+    #al-head .fold{display:grid;grid-template-rows:1fr;opacity:1;visibility:visible;
+      transition:grid-template-rows .32s cubic-bezier(.2,0,0,1),opacity .22s ease,visibility 0s}
+    #al-head .fold>div{min-height:0;overflow:hidden}
+    #al-head .fold.ridotto,#aule-libere-panel.mini #al-head .fold.pieno{grid-template-rows:0fr;opacity:0;visibility:hidden;
+      transition:grid-template-rows .32s cubic-bezier(.2,0,0,1),opacity .14s ease,visibility 0s .32s}
+    #aule-libere-panel.mini #al-head .fold.ridotto{grid-template-rows:1fr;opacity:1;visibility:visible;
+      transition:grid-template-rows .32s cubic-bezier(.2,0,0,1),opacity .22s ease .08s,visibility 0s}
+    @media (prefers-reduced-motion:reduce){#al-head .fold{transition:none!important}}
+    #al-ctrl .g{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:10px 8px}
+    #al-ctrl .g1{padding-bottom:10px}
     #al-ctrl label{font-size:12px;font-weight:500;letter-spacing:.2px;color:var(--mu);display:flex;flex-direction:column;gap:3px;min-width:0}
     #al-ctrl select,#al-ctrl input{font:16px/1.3 Roboto,system-ui,-apple-system,"Segoe UI",sans-serif;padding:10px 12px;min-width:0;width:100%;-webkit-appearance:none;appearance:none;min-height:48px;border:1px solid var(--ol);border-radius:12px;background:var(--sf);color:var(--tx)}
     #al-ctrl .dt input,#al-ctrl .dt select{padding:10px 8px}
@@ -179,9 +186,10 @@
     #al-fb-n{margin:0 0 70px;font-size:12px;color:var(--mu);text-align:center}
   </style>
   <div id="al-head">
-    <div id="al-top"><img src="../icon-192.png?v=5" alt=""><div><b>Aule libere</b><span>UdA · Pescara</span></div></div>
-    <button type="button" id="al-sum" aria-label="Mostra i filtri"></button>
+    <div class="fold pieno"><div><div id="al-top"><img src="../icon-192.png?v=5" alt=""><div><b>Aule libere</b><span>UdA · Pescara</span></div></div></div></div>
+    <div class="fold ridotto"><div><button type="button" id="al-sum" aria-label="Mostra i filtri"></button></div></div>
     <div id="al-ctrl">
+      <div class="fold pieno"><div><div class="g g1">
       <div class="riga1"><select id="al-ed" aria-label="Edificio"><option>caricamento…</option></select>
         <button type="button" title="Torna ad adesso" aria-label="Torna ad adesso" id="al-now"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg></button></div>
       <label class="dt">Giorno<input type="date" id="al-day"></label>
@@ -189,8 +197,11 @@
       <label class="dt">Libera per
         <select id="al-min"><option value="0">qualsiasi</option><option value="30">30 min</option>
         <option value="60" selected>1 ora</option><option value="120">2 ore</option><option value="180">3 ore</option></select></label>
+      </div></div></div>
+      <div class="g">
       <label class="cerca"><input type="search" id="al-q" placeholder="Cerca aula (es. M3)" autocomplete="off" enterkeyhint="search" aria-label="Cerca un'aula"></label>
       <label class="pc" title="Mostra prima le aule con le prese per il PC"><input type="checkbox" id="al-pc"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>🔌 PC</span></label>
+      </div>
     </div>
   </div>
   <div id="al-body"><div id="al-status">Avvio…</div><div id="al-out"></div>
