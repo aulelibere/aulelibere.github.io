@@ -94,12 +94,15 @@
     #al-now{color:var(--ac);width:40px!important;height:40px!important;flex-shrink:0;background:var(--free)!important;display:flex;align-items:center;justify-content:center;padding:0}
     #al-now svg{width:24px;height:24px;display:block}
     #al-now:active svg{transform:rotate(-30deg)}
-    #aule-libere-panel{--bg:#fff4e6;--sf:#fffaf3;--tx:#1d1d1f;--mu:#7a6a5c;--ac:#e8590c;--on:#fff;--bd:#f0c9a3;--line:#f5dcc2;
-      --free:#ffe3c7;--occ:#f6ebdf;--track:#fbd3ad;--busy:#b8551a;color-scheme:light}
-    @media (prefers-color-scheme:dark){#aule-libere-panel{--bg:#17120e;--sf:#231b15;--tx:#f7ede3;--mu:#b8a696;--ac:#ff8f45;--on:#1d1d1f;--bd:#4a3829;--line:#33271d;
-      --free:#3b2513;--occ:#221a14;--track:#57381f;--busy:#ffb37d;color-scheme:dark}}
+    /* palette dei colori dell'Ateneo: blu notte #18243a, blu #243557, azzurri #5685b5 e #97b3ce */
+    #aule-libere-panel{--bg:#f2f5f9;--sf:#ffffff;--tx:#18243a;--mu:#5b6e8c;--ac:#243557;--hl:#5685b5;--on:#fff;--bd:#c9d6e6;--line:#dde5ef;
+      --free:#e4eef8;--occ:#eceff4;--track:#c7d8ea;--busy:#243557;--hd:#243557;--hdtx:#c9d8ea;color-scheme:light}
+    @media (prefers-color-scheme:dark){#aule-libere-panel{--bg:#0f1726;--sf:#18243a;--tx:#e8eef7;--mu:#9fb2cc;--ac:#97b3ce;--hl:#97b3ce;--on:#0f1726;--bd:#2f4266;--line:#22324f;
+      --free:#1c2f4c;--occ:#141f33;--track:#2a4266;--busy:#97b3ce;--hd:#18243a;--hdtx:#97b3ce;color-scheme:dark}}
     #aule-libere-panel *{box-sizing:border-box}
-    #al-head{padding:10px 12px 8px;border-bottom:1px solid var(--line)}
+    #al-head{padding:10px 12px 10px;background:var(--hd);border-bottom:3px solid var(--hl)}
+    #al-head #al-ctrl label{color:var(--hdtx)}
+    #al-head #al-ctrl .pc{color:var(--tx)}
     #al-ctrl .riga1{grid-column:1/-1;display:flex;gap:8px;align-items:center}
     #al-ctrl .riga1 select{flex:1}
     #al-sum{display:none;width:100%;margin:0 0 8px;padding:8px 10px;border:1px solid var(--bd);border-radius:10px;background:var(--free);color:var(--tx);
@@ -122,7 +125,7 @@
     #al-status{font-size:12px;color:var(--mu);margin:6px 0}
     .al-sec{margin:14px 0 6px;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--ac)}
     .al-room{padding:10px 12px;border-radius:12px;margin:8px 0;background:var(--occ)}
-    .al-room.free{background:var(--free);box-shadow:inset 4px 0 0 var(--ac)}
+    .al-room.free{background:var(--free);box-shadow:inset 4px 0 0 var(--hl)}
     .al-room .t{display:flex;justify-content:space-between;gap:8px;font-weight:600}
     .al-room .t>span:last-child{white-space:nowrap;flex-shrink:0;font-size:14px}
     .al-room .s{font-size:12px;color:var(--mu)}
@@ -167,7 +170,8 @@
   </div>
   <div id="al-body"><div id="al-status">Avvio…</div><div id="al-out"></div>
     <a id="al-fb" href="#" target="_blank" rel="noopener">💬 Suggerimenti e segnalazioni</a>
-    <p id="al-fb-n">Hai trovato un errore o hai un'idea? Il modulo è anonimo.</p></div>`;
+    <p id="al-fb-n">Hai trovato un errore o hai un'idea? Il modulo è anonimo.<br>
+      Progetto non ufficiale di studenti, non affiliato all'Università "G. d'Annunzio".</p></div>`;
   document.body.appendChild(panel);
   const $ = s => panel.querySelector(s);
   $('#al-now').onclick = () => { cache.clear(); const n = new Date(); $('#al-day').value = isoDay(n); $('#al-time').value = hhmm(n); run(); };
