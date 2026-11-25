@@ -377,7 +377,7 @@
     const scelto = store.get().edificioScelto;
     const def = lista.find(e => e.id === scelto) || lista[0];
     $('#al-ed').innerHTML = lista.map(e =>
-      `<option value="${esc(e.id)}" ${e === def ? 'selected' : ''}>${esc(e.desc)} — ${e.cod.startsWith('PE') ? 'Pescara' : e.cod.startsWith('CH') ? 'Chieti' : esc(e.cod)} (${e.n} aule)</option>`).join('');
+      `<option value="${esc(e.id)}" ${e === def ? 'selected' : ''}>${esc(e.desc)} — ${e.cod.startsWith('PE') ? 'Pescara' : e.cod.startsWith('CH') ? 'Chieti' : esc(e.cod)} (${e.n} ${e.n === 1 ? 'aula' : 'aule'})</option>`).join('');
   }
 
   async function calcola() {
