@@ -143,11 +143,13 @@
     .al-room.free .t>span:last-child{align-self:flex-start;background:var(--pc);color:var(--opc);border-radius:8px;padding:3px 10px;font-size:13px}
     .al-room .s{font-size:12.5px;color:var(--mu)}
     .al-room.soon .t>span:last-child{background:var(--sec);color:var(--osec)}
-    .al-room.sempre ul{list-style:none;margin:8px 0 0;padding:0}
-    .al-room.sempre li{display:flex;align-items:baseline;gap:6px;padding:9px 0;border-top:1px solid var(--bd)}
-    .al-room.sempre li:first-child{border-top:0}
-    .al-room.sempre li b{font-weight:600}
-    .al-room.sempre li span{margin-left:auto;font-size:13px;color:var(--mu);white-space:nowrap}
+    .al-room.sempre{padding:10px 14px}
+    .al-room.sempre .t{font-size:14px;align-items:center}
+    .al-room.sempre .t>span:last-child{padding:1px 8px;font-size:12px}
+    .al-room.sempre ul{list-style:none;margin:4px 0 0;padding:0}
+    .al-room.sempre li{display:flex;align-items:baseline;gap:6px;padding:2px 0;font-size:13.5px;line-height:1.35}
+    .al-room.sempre li b{font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .al-room.sempre li span{margin-left:auto;font-size:12px;color:var(--mu);white-space:nowrap}
     .al-room small.i{font-weight:400;color:var(--mu)}
     .al-room small.p{font-weight:500;color:var(--osec);background:var(--sec);border-radius:8px;padding:1px 7px;white-space:nowrap}
     /* timeline: il segno rosso dell'ora attuale sporge sopra e sotto la barra, come in Google Calendar */
@@ -497,7 +499,6 @@
     // Le aule senza nessun impegno in tutta la giornata vanno in un'unica scheda compatta, senza timeline
     const sempre = libere.filter(x => !x.lst.length), conLezioni = libere.filter(x => x.lst.length);
     const schedaSempre = !sempre.length ? '' : `<div class="al-room free sempre"><div class="t"><span>Sempre libere oggi</span><span>${sempre.length}</span></div>
-        <div class="s">Nessuna lezione in programma per tutto il giorno: potrebbero anche essere chiuse.</div>
         <ul>${sempre.map(x => `<li><b>${esc(nomeAula(x.a))}</b>${pcPrima && preferita(x.a) ? ' <small class="p">🔌 PC</small>' : ''}
           <span>${esc(sede(x.a) || x.a.edDesc || '')}</span></li>`).join('')}</ul></div>`;
     $('#al-out').innerHTML =
