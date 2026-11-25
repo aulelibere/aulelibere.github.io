@@ -368,7 +368,9 @@
       const e = ed.get(a.edId) || { id: a.edId, cod: a.edCod || '', desc: a.edDesc || a.edCod || a.edId, n: 0 };
       e.n++; ed.set(a.edId, e);
     }
-    const lista = [...ed.values()].sort((x, y) => (y.cod.startsWith('PE') - x.cod.startsWith('PE')) || x.desc.localeCompare(y.desc));
+    // prima Pescara, poi Chieti, poi il resto; dentro ogni città gli edifici con più aule stanno sopra
+    const citta = e => e.cod.startsWith('PE') ? 0 : e.cod.startsWith('CH') ? 1 : 2;
+    const lista = [...ed.values()].sort((x, y) => (citta(x) - citta(y)) || (y.n - x.n) || x.desc.localeCompare(y.desc, 'it'));
     // Scelta combinata (predefinita): viale Pindaro + Polo Micara, edifici adiacenti
     const combo = lista.filter(e => /^PE_(PIN|MIC)$/.test(e.cod));
     if (combo.length) lista.unshift({ id: COMBO, cod: 'PE', desc: 'Viale Pindaro + Polo Micara', n: combo.reduce((s, e) => s + e.n, 0) });
