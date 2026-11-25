@@ -142,6 +142,7 @@
     .al-room .t>span:last-child{white-space:nowrap;flex-shrink:0;font-size:14px}
     .al-room.free .t>span:last-child{align-self:flex-start;background:var(--pc);color:var(--opc);border-radius:8px;padding:3px 10px;font-size:13px}
     .al-room .s{font-size:12.5px;color:var(--mu)}
+    .al-room.soon .t>span:last-child{background:var(--sec);color:var(--osec)}
     .al-room small.i{font-weight:400;color:var(--mu)}
     .al-room small.p{font-weight:500;color:var(--osec);background:var(--sec);border-radius:8px;padding:1px 7px;white-space:nowrap}
     /* timeline: il segno rosso dell'ora attuale sporge sopra e sotto la barra, come in Google Calendar */
@@ -442,6 +443,17 @@
     libere.sort((x, y) => (pref(x) - pref(y)) || (vuota(x) - vuota(y)) || ((y.fino ?? Infinity) - (x.fino ?? Infinity)) || ord(x, y));
     occupate.sort((x, y) => (pref(x) - pref(y)) || (x.liberaDa - y.liberaDa) || ord(x, y));
 
+    // Libere tra poco: aule occupate adesso che si liberano entro 30 minuti
+    // e poi restano libere almeno quanto chiesto in "Libera per"
+    const TRA_POCO = 30 * 60000, presto = [];
+    for (let k = occupate.length - 1; k >= 0; k--) {
+      const x = occupate[k];
+      if (x.liberaDa - t > TRA_POCO) continue;
+      x.prox = x.lst.find(i => i.s >= x.liberaDa);
+      x.fino = x.prox ? x.prox.s : null;
+      if (x.fino === null || x.fino - x.liberaDa >= minMs || q.length) { presto.unshift(x); occupate.splice(k, 1); }
+    }
+
     const barra = lst => {
       const span = ch - ap, pos = v => Math.max(0, Math.min(100, (v - ap) / span * 100));
       const ora = (t - ap) / span * 100;
@@ -456,7 +468,7 @@
       .flatMap(x => x.imp).map(i => [i.id, i])).values()];
     const primo = impEd.length ? Math.min(...impEd.map(i => i.s)) : null;
     const ultimo = impEd.length ? Math.max(...impEd.map(i => i.e)) : null;
-    const chiusa = !occupate.length && (!impEd.length || t < primo || t >= ultimo);
+    const chiusa = !occupate.length && !presto.length && (!impEd.length || t < primo || t >= ultimo);
     if (chiusa) {
       const quando = giornoSel.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
       const motivo = !impEd.length
@@ -469,7 +481,7 @@
       return;
     }
 
-    if (q.length && !libere.length && !occupate.length) {
+    if (q.length && !libere.length && !presto.length && !occupate.length) {
       $('#al-out').innerHTML = `<div class="al-closed"><div class="ic">🔎</div><h3>Nessuna aula trovata</h3>
         <p>Nessuna aula di questo edificio corrisponde a “${esc($('#al-q').value)}”.</p>
         <p class="n">Prova un altro nome o scegli un altro edificio.</p></div>`;
@@ -483,11 +495,16 @@
         <span>${x.fino ? 'fino alle ' + hhmm(new Date(x.fino)) : 'tutto il giorno'}</span></div>
         <div class="s">${x.fino ? 'Libera per ' + durata(x.fino - t) + ' · poi: ' + esc(x.prox.nome) : (x.lst.length ? 'Nessuna lezione in programma dopo quest\'ora' : 'Nessuna lezione in programma oggi')}</div>
         ${barra(x.lst)}${ticks}</div>`).join('') : '<div class="s">Nessuna aula libera con questi criteri.</div>') +
-      `<div class="al-sec">Occupate (${occupate.length})</div>` +
+      (presto.length ? `<div class="al-sec">Libere tra poco (${presto.length})</div>` +
+        presto.map(x => `<div class="al-room free soon"><div class="t"><span>${titolo(x.a)}</span><span>dalle ${hhmm(new Date(x.liberaDa))}</span></div>
+        <div class="s">Tra ${Math.max(1, Math.round((x.liberaDa - t) / 60000))} min · ${x.fino ? 'poi libera per ' + durata(x.fino - x.liberaDa) + ', fino alle ' + hhmm(new Date(x.fino)) : 'poi libera fino a fine giornata'}</div>
+        <div class="s">Ora: ${esc(x.ora.nome)} (${hhmm(new Date(x.ora.s))}–${hhmm(new Date(x.ora.e))})</div>
+        ${barra(x.lst)}${ticks}</div>`).join('') : '') +
+      (occupate.length ? `<div class="al-sec">Occupate (${occupate.length})</div>` : '') +
       occupate.map(x => `<div class="al-room"><div class="t"><span>${titolo(x.a)}</span><span>libera dalle ${hhmm(new Date(x.liberaDa))}</span></div>
         <div class="s">${esc(x.ora.nome)} (${hhmm(new Date(x.ora.s))}–${hhmm(new Date(x.ora.e))})</div>${barra(x.lst)}</div>`).join('');
 
-    $('#al-status').innerHTML = esc(`${libere.length + occupate.length} aule · ${imp.length} impegni in Ateneo quel giorno · ${origine}. ` +
+    $('#al-status').innerHTML = esc(`${libere.length + presto.length + occupate.length} aule · ${imp.length} impegni in Ateneo quel giorno · ${origine}. ` +
       `"Libera" = nessun impegno pubblicato su University Planner: `) +
       '<b>un\'aula senza lezioni potrebbe comunque essere chiusa o riservata.</b>';
   }
