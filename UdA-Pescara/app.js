@@ -143,6 +143,11 @@
     .al-room.free .t>span:last-child{align-self:flex-start;background:var(--pc);color:var(--opc);border-radius:8px;padding:3px 10px;font-size:13px}
     .al-room .s{font-size:12.5px;color:var(--mu)}
     .al-room.soon .t>span:last-child{background:var(--sec);color:var(--osec)}
+    .al-room.sempre ul{list-style:none;margin:8px 0 0;padding:0}
+    .al-room.sempre li{display:flex;align-items:baseline;gap:6px;padding:9px 0;border-top:1px solid var(--bd)}
+    .al-room.sempre li:first-child{border-top:0}
+    .al-room.sempre li b{font-weight:600}
+    .al-room.sempre li span{margin-left:auto;font-size:13px;color:var(--mu);white-space:nowrap}
     .al-room small.i{font-weight:400;color:var(--mu)}
     .al-room small.p{font-weight:500;color:var(--osec);background:var(--sec);border-radius:8px;padding:1px 7px;white-space:nowrap}
     /* timeline: il segno rosso dell'ora attuale sporge sopra e sotto la barra, come in Google Calendar */
@@ -489,12 +494,19 @@
       return;
     }
 
+    // Le aule senza nessun impegno in tutta la giornata vanno in un'unica scheda compatta, senza timeline
+    const sempre = libere.filter(x => !x.lst.length), conLezioni = libere.filter(x => x.lst.length);
+    const schedaSempre = !sempre.length ? '' : `<div class="al-room free sempre"><div class="t"><span>Sempre libere oggi</span><span>${sempre.length}</span></div>
+        <div class="s">Nessuna lezione in programma per tutto il giorno: potrebbero anche essere chiuse.</div>
+        <ul>${sempre.map(x => `<li><b>${esc(nomeAula(x.a))}</b>${pcPrima && preferita(x.a) ? ' <small class="p">🔌 PC</small>' : ''}
+          <span>${esc(sede(x.a) || x.a.edDesc || '')}</span></li>`).join('')}</ul></div>`;
     $('#al-out').innerHTML =
       `<div class="al-sec">Libere alle ${hhmm(new Date(t))} (${libere.length})</div>` +
-      (libere.length ? libere.map(x => `<div class="al-room free"><div class="t"><span>${titolo(x.a)}</span>
+      (conLezioni.length ? conLezioni.map(x => `<div class="al-room free"><div class="t"><span>${titolo(x.a)}</span>
         <span>${x.fino ? 'fino alle ' + hhmm(new Date(x.fino)) : 'tutto il giorno'}</span></div>
         <div class="s">${x.fino ? 'Libera per ' + durata(x.fino - t) + ' · poi: ' + esc(x.prox.nome) : (x.lst.length ? 'Nessuna lezione in programma dopo quest\'ora' : 'Nessuna lezione in programma oggi')}</div>
-        ${barra(x.lst)}${ticks}</div>`).join('') : '<div class="s">Nessuna aula libera con questi criteri.</div>') +
+        ${barra(x.lst)}${ticks}</div>`).join('') : sempre.length ? '' : '<div class="s">Nessuna aula libera con questi criteri.</div>') +
+      schedaSempre +
       (presto.length ? `<div class="al-sec">Libere tra poco (${presto.length})</div>` +
         presto.map(x => `<div class="al-room free soon"><div class="t"><span>${titolo(x.a)}</span><span>dalle ${hhmm(new Date(x.liberaDa))}</span></div>
         <div class="s">Tra ${Math.max(1, Math.round((x.liberaDa - t) / 60000))} min · ${x.fino ? 'poi libera per ' + durata(x.fino - x.liberaDa) + ', fino alle ' + hhmm(new Date(x.fino)) : 'poi libera fino a fine giornata'}</div>
