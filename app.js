@@ -89,86 +89,100 @@
   panel.innerHTML = `
   <style>
     #aule-libere-panel{position:fixed;inset:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);max-width:640px;margin:0 auto;
-      background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:var(--bg);color:var(--tx);font:15px/1.4 Roboto,system-ui,-apple-system,"Segoe UI",sans-serif;
       display:flex;flex-direction:column;overflow:hidden;text-align:left}
-    #al-now{color:var(--ac);width:40px!important;height:40px!important;flex-shrink:0;background:var(--free)!important;display:flex;align-items:center;justify-content:center;padding:0}
-    #al-now svg{width:24px;height:24px;display:block}
-    #al-now:active svg{transform:rotate(-30deg)}
-    /* palette dei colori dell'Ateneo: blu notte #18243a, blu #243557, azzurri #5685b5 e #97b3ce */
-    #aule-libere-panel{--bg:#f2f5f9;--sf:#ffffff;--tx:#18243a;--mu:#5b6e8c;--ac:#243557;--hl:#5685b5;--on:#fff;--bd:#c9d6e6;--line:#dde5ef;
-      --free:#e4eef8;--occ:#eceff4;--track:#c7d8ea;--busy:#243557;--hd:#243557;--hdtx:#c9d8ea;color-scheme:light}
-    @media (prefers-color-scheme:dark){#aule-libere-panel{--bg:#0f1726;--sf:#18243a;--tx:#e8eef7;--mu:#9fb2cc;--ac:#97b3ce;--hl:#97b3ce;--on:#0f1726;--bd:#2f4266;--line:#22324f;
-      --free:#1c2f4c;--occ:#141f33;--track:#2a4266;--busy:#97b3ce;--hd:#18243a;--hdtx:#97b3ce;color-scheme:dark}}
-    #aule-libere-panel *{box-sizing:border-box}
-    #al-head{padding:10px 12px 10px;background:var(--hd);border-bottom:3px solid var(--hl)}
+    /* Material You (Material 3): palette tonale calcolata dall'azzurro UdA #5685b5 con la libreria Material di Google.
+       Chiaro = M1, scuro = M3. --sc* sono i "surface container", --pc/--opc il primary container, --sec/--osec il secondary container */
+    #aule-libere-panel{--bg:#f8f9ff;--sf:#ffffff;--scl:#f2f3f9;--sc:#eceef4;--sch:#e0e2e8;--tx:#191c20;--mu:#42474e;--ol:#73777f;--bd:#c2c7cf;
+      --ac:#33618d;--hl:#33618d;--on:#ffffff;--pc:#d0e4ff;--opc:#154974;--sec:#d6e4f7;--osec:#3b4857;--now:#ba1a1a;
+      --free:var(--scl);--occ:var(--sc);--track:var(--pc);--busy:var(--ac);--hd:var(--sc);--hdtx:var(--mu);
+      --sh:0 1px 2px rgba(0,0,0,.12),0 1px 3px 1px rgba(0,0,0,.06);color-scheme:light}
+    @media (prefers-color-scheme:dark){#aule-libere-panel{--bg:#101418;--sf:#0b0e12;--scl:#191c20;--sc:#1d2024;--sch:#32353a;--tx:#e0e2e8;--mu:#c2c7cf;--ol:#8c9199;--bd:#42474e;
+      --ac:#9ecafc;--hl:#9ecafc;--on:#003256;--pc:#154974;--opc:#d0e4ff;--sec:#3b4857;--osec:#d6e4f7;--now:#ffb4ab;
+      --sh:0 1px 2px rgba(0,0,0,.4),0 1px 3px 1px rgba(0,0,0,.2);color-scheme:dark}}
+    #aule-libere-panel *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    #al-head{padding:6px 14px 14px;background:var(--hd);border-radius:0 0 28px 28px}
+    #al-top{display:flex;align-items:center;gap:12px;padding:6px 2px 12px}
+    #al-top img{width:40px;height:40px;border-radius:12px;flex-shrink:0}
+    #al-top b{display:block;font-size:22px;font-weight:500;line-height:1.15;color:var(--tx)}
+    #al-top span{display:block;font-size:13px;color:var(--mu)}
+    #aule-libere-panel.mini #al-top{display:none}
     #al-head #al-ctrl label{color:var(--hdtx)}
-    #al-head #al-ctrl .pc{color:var(--tx)}
     #al-ctrl .riga1{grid-column:1/-1;display:flex;gap:8px;align-items:center}
     #al-ctrl .riga1 select{flex:1}
-    #al-sum{display:none;width:100%;margin:0 0 8px;padding:8px 10px;border:1px solid var(--bd);border-radius:10px;background:var(--free);color:var(--tx);
-      font:600 13px/1.3 system-ui,-apple-system,sans-serif;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #al-now{width:48px;height:48px;flex-shrink:0;border:0;border-radius:50%;cursor:pointer;background:var(--sec);color:var(--osec);display:flex;align-items:center;justify-content:center;padding:0}
+    #al-now svg{width:24px;height:24px;display:block}
+    #al-now:active svg{transform:rotate(-30deg)}
+    #al-sum{display:none;width:100%;margin:4px 0 10px;padding:12px 16px;border:0;border-radius:28px;background:var(--sch);color:var(--tx);
+      font:500 14px/1.3 Roboto,system-ui,-apple-system,"Segoe UI",sans-serif;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     #aule-libere-panel.mini #al-sum{display:block}
     #aule-libere-panel.mini #al-ctrl .riga1,#aule-libere-panel.mini #al-ctrl .dt{display:none}
-    #al-head button.x{border:0;background:var(--occ);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:16px}
-    #al-ctrl{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:6px 8px}
-    #al-ctrl label{font-size:11px;color:var(--mu);display:flex;flex-direction:column;gap:2px}
-    #al-ctrl select,#al-ctrl input{font:16px/1.3 system-ui,-apple-system,sans-serif;padding:9px 8px;min-width:0;width:100%;-webkit-appearance:none;appearance:none;min-height:40px;border:1px solid var(--bd);border-radius:10px;background:var(--sf);color:var(--tx)}
-    #al-ctrl select:focus,#al-ctrl input:focus{outline:2px solid var(--hl);outline-offset:1px}
-    #aule-libere-panel *{-webkit-tap-highlight-color:transparent}
-    #al-ctrl .pc input:focus{outline:none}
-    #al-ctrl .pc:has(input:focus-visible){outline:2px solid var(--hl);outline-offset:1px}
+    #al-ctrl{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:10px 8px}
+    #al-ctrl label{font-size:12px;font-weight:500;letter-spacing:.2px;color:var(--mu);display:flex;flex-direction:column;gap:3px;min-width:0}
+    #al-ctrl select,#al-ctrl input{font:16px/1.3 Roboto,system-ui,-apple-system,"Segoe UI",sans-serif;padding:10px 12px;min-width:0;width:100%;-webkit-appearance:none;appearance:none;min-height:48px;border:1px solid var(--ol);border-radius:12px;background:var(--sf);color:var(--tx)}
+    #al-ctrl .dt input,#al-ctrl .dt select{padding:10px 8px}
+    #al-ctrl select:focus,#al-ctrl input:focus{outline:2px solid var(--ac);outline-offset:-1px}
     #al-ctrl .full{grid-column:1/-1}
-    #al-ctrl label{min-width:0}
     #al-ctrl .cerca{grid-column:1/3}
-    #al-ctrl .pc{flex-direction:row;align-items:center;justify-content:center;gap:6px;min-height:40px;border:1px solid var(--bd);border-radius:10px;background:var(--sf);color:var(--tx);font-size:15px;font-weight:600;cursor:pointer;user-select:none}
-    #al-ctrl .pc input{width:18px!important;min-height:0;height:18px;margin:0;padding:0;accent-color:var(--ac);-webkit-appearance:auto;appearance:auto}
-    #al-ctrl .pc:has(input:checked){background:var(--free);border-color:var(--ac);color:var(--ac)}
-    #al-q{padding-left:34px!important;background:var(--sf) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a08a76' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 21 21'/%3E%3C/svg%3E") no-repeat 10px center/18px!important}
+    #al-ctrl #al-q{border:0;border-radius:28px;padding-left:44px;background:var(--sch) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888e96' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 21 21'/%3E%3C/svg%3E") no-repeat 16px center/20px}
+    /* "PC" come filter chip di Material 3: contorno quando spento, pieno con la spunta quando acceso */
+    #al-ctrl .pc{position:relative;flex-direction:row;align-items:center;justify-content:center;gap:6px;min-height:48px;padding:0 12px;border:1px solid var(--ol);border-radius:8px;
+      background:transparent;color:var(--mu);font-size:14px;font-weight:500;letter-spacing:.1px;cursor:pointer;user-select:none}
+    #al-ctrl .pc input{position:absolute;opacity:0;width:1px;height:1px;min-height:0;margin:0;padding:0;pointer-events:none}
+    #al-ctrl .pc .ck{display:none;width:18px;height:18px}
+    #al-ctrl .pc:has(input:checked){background:var(--sec);border-color:var(--sec);color:var(--osec)}
+    #al-ctrl .pc:has(input:checked) .ck{display:block}
+    #al-ctrl .pc:has(input:focus-visible){outline:2px solid var(--ac);outline-offset:1px}
     #al-body{overflow:auto;padding:8px 14px 16px;flex:1}
-    #al-status{font-size:12px;color:var(--mu);margin:6px 0}
-    .al-sec{margin:14px 0 6px;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--ac)}
-    .al-room{padding:10px 12px;border-radius:12px;margin:8px 0;background:var(--occ)}
-    .al-room.free{background:var(--free);box-shadow:inset 4px 0 0 var(--hl)}
-    .al-room .t{display:flex;justify-content:space-between;gap:8px;font-weight:600}
+    #al-status{font-size:12.5px;line-height:1.45;color:var(--mu);margin:8px 2px}
+    .al-sec{margin:18px 2px 8px;font-weight:600;font-size:15px;letter-spacing:.1px;color:var(--ac)}
+    .al-room{padding:14px 16px;border-radius:16px;margin:10px 0;background:var(--occ)}
+    .al-room.free{background:var(--free);box-shadow:var(--sh)}
+    .al-room .t{display:flex;justify-content:space-between;gap:8px;font-size:16px;font-weight:600}
     .al-room .t>span:last-child{white-space:nowrap;flex-shrink:0;font-size:14px}
-    .al-room .s{font-size:12px;color:var(--mu)}
+    .al-room.free .t>span:last-child{align-self:flex-start;background:var(--pc);color:var(--opc);border-radius:8px;padding:3px 10px;font-size:13px}
+    .al-room .s{font-size:12.5px;color:var(--mu)}
     .al-room small.i{font-weight:400;color:var(--mu)}
-    .al-room small.p{font-weight:600;color:var(--on);background:var(--ac);border-radius:6px;padding:1px 6px;white-space:nowrap}
-    .al-bar{position:relative;height:8px;background:var(--track);border-radius:4px;margin-top:6px;overflow:hidden}
-    .al-bar i{position:absolute;top:0;bottom:0;background:var(--busy)}
-    .al-bar b{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--tx)}
-    .al-closed{text-align:center;padding:36px 20px;margin:12px 0;border-radius:14px;background:var(--free)}
+    .al-room small.p{font-weight:500;color:var(--osec);background:var(--sec);border-radius:8px;padding:1px 7px;white-space:nowrap}
+    /* timeline: il segno rosso dell'ora attuale sporge sopra e sotto la barra, come in Google Calendar */
+    .al-tl{position:relative;margin-top:12px}
+    .al-bar{position:relative;height:6px;background:var(--track);border-radius:3px;overflow:hidden}
+    .al-bar i{position:absolute;top:0;bottom:0;background:var(--busy);border-radius:3px}
+    .al-tl .ora{position:absolute;top:-7px;height:20px;width:3px;margin-left:-1.5px;border-radius:2px;background:var(--now)}
+    .al-tl .ora::before{content:"";position:absolute;top:-3px;left:50%;width:9px;height:9px;margin-left:-4.5px;border-radius:50%;background:var(--now)}
+    .al-ticks{display:flex;justify-content:space-between;font-size:10.5px;color:var(--mu);margin-top:6px}
+    .al-closed{text-align:center;padding:36px 20px;margin:12px 0;border-radius:24px;background:var(--free)}
     .al-closed .ic{font-size:40px;line-height:1}
-    .al-closed h3{margin:10px 0 6px;font-size:22px;color:var(--tx)}
+    .al-closed h3{margin:10px 0 6px;font-size:22px;font-weight:500;color:var(--tx)}
     .al-closed p{margin:4px 0;color:var(--tx)}
     .al-closed .n{font-size:13px;color:var(--mu);margin-top:10px}
     #al-inst{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));max-width:620px;margin:0 auto;z-index:5;
-      display:flex;gap:12px;align-items:center;padding:12px 12px 12px 14px;border-radius:16px;background:var(--sf);border:1px solid var(--bd);
-      box-shadow:0 10px 30px rgba(0,0,0,.18);animation:al-su .25s ease-out}
-    #al-inst img{width:44px;height:44px;border-radius:11px;flex-shrink:0}
+      display:flex;gap:12px;align-items:center;padding:12px 12px 12px 14px;border-radius:24px;background:var(--sc);
+      box-shadow:0 4px 8px 3px rgba(0,0,0,.15),0 1px 3px rgba(0,0,0,.3);animation:al-su .25s ease-out}
+    #al-inst img{width:44px;height:44px;border-radius:12px;flex-shrink:0}
     #al-inst .tx{flex:1;font-size:13px;line-height:1.35;color:var(--mu)}
-    #al-inst .tx b{display:block;font-size:15px;color:var(--tx)}
-    #al-inst button{border:0;border-radius:10px;font:600 14px system-ui,-apple-system,sans-serif;cursor:pointer}
-    #al-inst .ok{background:var(--ac);color:var(--on);padding:10px 14px}
+    #al-inst .tx b{display:block;font-size:15px;font-weight:600;color:var(--tx)}
+    #al-inst button{border:0;border-radius:20px;font:500 14px Roboto,system-ui,-apple-system,"Segoe UI",sans-serif;cursor:pointer}
+    #al-inst .ok{background:var(--ac);color:var(--on);padding:10px 16px}
     #al-inst .no{background:none;color:var(--mu);padding:6px;font-size:20px;line-height:1}
     @keyframes al-su{from{transform:translateY(120%)}to{transform:none}}
-    #al-fb{display:block;margin:22px 0 4px;padding:12px;border-radius:12px;border:1px dashed var(--bd);background:var(--sf);
-      color:var(--ac);font-weight:600;text-align:center;text-decoration:none}
+    #al-fb{display:block;margin:22px 0 4px;padding:12px;border-radius:20px;border:1px solid var(--ol);background:transparent;
+      color:var(--ac);font-weight:500;text-align:center;text-decoration:none}
     #al-fb-n{margin:0 0 70px;font-size:12px;color:var(--mu);text-align:center}
-    .al-ticks{display:flex;justify-content:space-between;font-size:10px;color:var(--mu);margin-top:2px}
   </style>
   <div id="al-head">
+    <div id="al-top"><img src="icon-192.png?v=5" alt=""><div><b>Aule libere</b><span>UdA · Pescara</span></div></div>
     <button type="button" id="al-sum" aria-label="Mostra i filtri"></button>
     <div id="al-ctrl">
       <div class="riga1"><select id="al-ed" aria-label="Edificio"><option>caricamento…</option></select>
-        <button class="x" type="button" title="Torna ad adesso" aria-label="Torna ad adesso" id="al-now"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg></button></div>
+        <button type="button" title="Torna ad adesso" aria-label="Torna ad adesso" id="al-now"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg></button></div>
       <label class="dt">Giorno<input type="date" id="al-day"></label>
       <label class="dt">Ora<input type="time" id="al-time" step="900"></label>
       <label class="dt">Libera per
         <select id="al-min"><option value="0">qualsiasi</option><option value="30">30 min</option>
         <option value="60" selected>1 ora</option><option value="120">2 ore</option><option value="180">3 ore</option></select></label>
       <label class="cerca"><input type="search" id="al-q" placeholder="Cerca aula (es. M3)" autocomplete="off" enterkeyhint="search" aria-label="Cerca un'aula"></label>
-      <label class="pc" title="Mostra prima le aule con le prese per il PC"><input type="checkbox" id="al-pc"><span>🔌 PC</span></label>
+      <label class="pc" title="Mostra prima le aule con le prese per il PC"><input type="checkbox" id="al-pc"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>🔌 PC</span></label>
     </div>
   </div>
   <div id="al-body"><div id="al-status">Avvio…</div><div id="al-out"></div>
@@ -428,8 +442,9 @@
 
     const barra = lst => {
       const span = ch - ap, pos = v => Math.max(0, Math.min(100, (v - ap) / span * 100));
-      return `<div class="al-bar">${lst.map(i => `<i style="left:${pos(i.s)}%;width:${pos(i.e) - pos(i.s)}%" title="${esc(hhmm(new Date(i.s)))}–${esc(hhmm(new Date(i.e)))} ${esc(i.nome)}"></i>`).join('')}
-        <b style="left:${(t - ap) / span * 100}%"></b></div>`;
+      const ora = (t - ap) / span * 100;
+      return `<div class="al-tl"><div class="al-bar">${lst.map(i => `<i style="left:${pos(i.s)}%;width:${pos(i.e) - pos(i.s)}%" title="${esc(hhmm(new Date(i.s)))}–${esc(hhmm(new Date(i.e)))} ${esc(i.nome)}"></i>`).join('')}</div>` +
+        (ora >= 0 && ora <= 100 ? `<b class="ora" style="left:${ora}%"></b>` : '') + `</div>`;
     };
     const ticks = `<div class="al-ticks"><span>8</span><span>11</span><span>14</span><span>17</span><span>20</span></div>`;
 
