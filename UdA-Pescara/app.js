@@ -1,7 +1,7 @@
 /*
  * Aule libere UdA — mostra quali aule di un edificio sono libere in un dato momento e fino a quando.
  *
- * Fonte dei dati: i file in data/, che GitHub Actions rigenera ogni ora da University Planner
+ * Fonte dei dati: i file in data/, che GitHub Actions rigenera circa ogni 2 ore da University Planner
  * (scripts/aggiorna-dati.mjs). Se mancano o sono troppo vecchi, l'app interroga direttamente
  * il server dell'università come ripiego.
  */
@@ -300,14 +300,14 @@
   const cache = new Map(); // isoDay -> impegni
   const fonte = new Map(); // isoDay -> ora di generazione del file, oppure null se scaricato in diretta
 
-  // Giorno dal file pre-calcolato; null se manca o è troppo vecchio (oggi: più di 3 ore; altri giorni: 36 ore)
+  // Giorno dal file pre-calcolato; null se manca o è troppo vecchio (oggi: più di 4 ore; altri giorni: 36 ore)
   async function giornoDaFile(d) {
     const k = isoDay(d);
     try {
       const r = await fetch(`${DATI}giorni/${k}.json`, { cache: 'no-cache' });
       if (!r.ok) return null;
       const j = await r.json();
-      const maxEta = (k === isoDay(new Date()) ? 3 : 36) * 3600e3;
+      const maxEta = (k === isoDay(new Date()) ? 4 : 36) * 3600e3;
       if (!j || !Array.isArray(j.impegni) || Date.now() - j.generato > maxEta) return null;
       fonte.set(k, j.generato);
       return j.impegni.map(i => ({ id: i.id, s: i.s, e: i.e, nome: i.nome,

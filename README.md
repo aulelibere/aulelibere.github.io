@@ -11,7 +11,8 @@ un'aula senza lezioni potrebbe comunque essere chiusa o riservata.
 
 ## Come si aggiornano i dati
 
-Ogni ora (dalle 6 alle 20) GitHub Actions esegue `scripts/aggiorna-dati.mjs`, che scarica gli orari
+Circa ogni 2 ore, di giorno, GitHub Actions esegue `scripts/aggiorna-dati.mjs` (il workflow tenta ogni 30 minuti
+e si ferma se i dati di oggi hanno meno di 110 minuti; la puntualità non è garantita). Lo script scarica gli orari
 da University Planner, li riduce e li pubblica insieme al sito in `data/`:
 oggi viene riscaricato a ogni esecuzione, i 7 giorni successivi una volta al giorno.
 L'app legge questi file, quindi il numero di studenti che la usano non cambia il carico sul server

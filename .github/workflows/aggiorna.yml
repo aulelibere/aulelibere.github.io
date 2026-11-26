@@ -2,8 +2,9 @@ name: Aggiorna orari e pubblica
 
 on:
   schedule:
-    # ogni ora, dalle 6 alle 20 ora italiana d'inverno (7–21 d'estate). Gli orari sono in UTC.
-    - cron: '17 5-19 * * *'
+    # Un tentativo ogni 30 minuti, dalle 6:07 alle 20:37 ora italiana d'inverno (7:07–21:37 d'estate). Orari in UTC.
+    # GitHub può ritardare o saltare le esecuzioni: si aggiorna solo se i dati di oggi hanno almeno 110 minuti.
+    - cron: '7,37 5-19 * * *'
   push:
     branches: [main]
   workflow_dispatch:
@@ -15,27 +16,56 @@ concurrency:
 jobs:
   dati:
     runs-on: ubuntu-latest
+    outputs:
+      aggiorna: ${{ steps.controllo.outputs.aggiorna }}
     permissions:
       contents: write     # solo per il commit mensile che tiene attiva la pianificazione
       actions: read
     steps:
       - uses: actions/checkout@v7
 
+      # Nelle esecuzioni pianificate, se i dati di oggi sono recenti ci si ferma qui.
+      # Push e avvii manuali pubblicano sempre. Se il controllo non riesce, si aggiorna.
+      - name: Controlla se serve aggiornare
+        id: controllo
+        env:
+          EVENTO: ${{ github.event_name }}
+        run: |
+          aggiorna=si
+          if [ "$EVENTO" = "schedule" ]; then
+            oggi=$(TZ=Europe/Rome date +%F)
+            generato=$(curl -fsS --max-time 15 https://aulelibere.github.io/UdA-Pescara/data/indice.json \
+              | jq -r --arg g "$oggi" '.giorni[] | select(.giorno == $g) | (.generato / 1000 | floor)') || generato=""
+            if [[ "$generato" =~ ^[0-9]+$ ]]; then
+              eta=$(( ($(date +%s) - generato) / 60 ))
+              echo "Dati di oggi generati $eta minuti fa."
+              if [ "$eta" -lt 110 ]; then aggiorna=no; fi
+            else
+              echo "Dati di oggi non trovati."
+            fi
+          fi
+          echo "Aggiornare: $aggiorna"
+          echo "aggiorna=$aggiorna" >> "$GITHUB_OUTPUT"
+
       - uses: actions/setup-node@v7
+        if: steps.controllo.outputs.aggiorna == 'si'
         with:
           node-version: 22
 
       - name: Prepara il sito
+        if: steps.controllo.outputs.aggiorna == 'si'
         run: |
           mkdir -p _site
           rsync -a --exclude '.git' --exclude '.github' --exclude 'scripts' --exclude '_site' ./ _site/
 
       - name: Scarica gli orari dall'università
+        if: steps.controllo.outputs.aggiorna == 'si'
         # se fallisce il sito viene pubblicato lo stesso: l'app ripiega sulle richieste dirette
         continue-on-error: true
         run: node scripts/aggiorna-dati.mjs _site/UdA-Pescara "https://aulelibere.github.io/UdA-Pescara/"
 
       - uses: actions/upload-pages-artifact@v5
+        if: steps.controllo.outputs.aggiorna == 'si'
         with:
           path: _site
 
@@ -56,6 +86,7 @@ jobs:
 
   pubblica:
     needs: dati
+    if: needs.dati.outputs.aggiorna == 'si'
     runs-on: ubuntu-latest
     permissions:
       pages: write
