@@ -83,6 +83,39 @@
     return [...visti.values()];
   }
 
+  // ---------- ricerca ----------
+  // I nomi delle aule sono abbreviati in modi diversi ("LAB. A", "Informat.", "DISEGS"):
+  // le parole di uno stesso gruppo valgono come sinonimi. Per aggiungerne, modifica qui.
+  const SINONIMI = [
+    ['lab', 'labo', 'laboratorio', 'laboratori'],
+    ['disegno', 'disegni', 'disegs', 'dis'],
+    ['informatica', 'informatizzata', 'informatico', 'informat', 'info', 'inf', 'computer'],
+    ['lingue', 'linguistico', 'linguistica', 'ling', 'lin']
+  ];
+  const IGNORATE = new Set(['aula', 'aule', 'polo', 'viale']);
+  const spezza = x => String(x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[^a-z0-9]+/).filter(Boolean);
+  const paroleCercate = testo => spezza(testo).join(' ')
+    .replace(/\bm (?=\d)/g, 'm')            // "m 3" → "m3"
+    .replace(/(\d)([a-z])\b/g, '$1 $2')       // "16a" → "16 a"
+    .split(' ').filter(p => p && !IGNORATE.has(p));
+  // un solo errore: lettera mancante, in più, sbagliata o due lettere invertite
+  const quasiUguali = (x, y) => {
+    if (x === y) return true;
+    let i = 0; while (i < x.length && x[i] === y[i]) i++;
+    return x.slice(i + 1) === y.slice(i + 1) || x.slice(i + 1) === y.slice(i) || x.slice(i) === y.slice(i + 1) ||
+      (x[i] === y[i + 1] && x[i + 1] === y[i] && x.slice(i + 2) === y.slice(i + 2));
+  };
+  // Ogni parola cercata deve essere l'inizio di una parola del nome dell'aula (o di un suo sinonimo) o dell'edificio
+  const corrisponde = (a, q, approssima = false) => {
+    const sede = /^PE_MIC/.test(a.edCod || '') ? ['micara'] : /^PE_PIN/.test(a.edCod || '') ? ['pindaro'] : [];
+    const parole = [...spezza(a.desc || a.codice), ...sede].flatMap(w => SINONIMI.find(g => g.includes(w)) || [w]);
+    return q.every(p => parole.some(w =>
+      // una lettera da sola, insieme ad altre parole ("lab a"), deve coincidere esattamente
+      p.length === 1 && q.length > 1 && /[a-z]/.test(p) ? w === p
+      : w.startsWith(p) || (approssima && p.length >= 5 && /^[a-z]+$/.test(p) &&
+          [p.length - 1, p.length, p.length + 1].some(n => quasiUguali(p, w.slice(0, n))))));
+  };
+
   // ---------- UI ----------
   const panel = document.createElement('div');
   panel.id = 'aule-libere-panel';
@@ -101,7 +134,7 @@
       --ac:#9ecafc;--hl:#9ecafc;--on:#003256;--pc:#154974;--opc:#d0e4ff;--sec:#3b4857;--osec:#d6e4f7;--now:#ffb4ab;
       --sh:0 1px 2px rgba(0,0,0,.4),0 1px 3px 1px rgba(0,0,0,.2);color-scheme:dark}}
     #aule-libere-panel *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    #al-head{padding:6px 14px 14px;background:var(--hd);border-radius:0 0 28px 28px}
+    #al-head{padding:6px 14px 14px;background:var(--hd);border-radius:0 0 38px 38px}
     #al-top{display:flex;align-items:center;gap:12px;padding:6px 2px 12px}
     #al-top img{width:40px;height:40px;border-radius:12px;flex-shrink:0}
     #al-top b{display:block;font-size:22px;font-weight:500;line-height:1.15;color:var(--tx)}
@@ -133,7 +166,7 @@
     #al-ctrl .cerca{grid-column:1/3}
     #al-ctrl #al-q{border:0;border-radius:28px;padding-left:44px;background:var(--sch) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888e96' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 21 21'/%3E%3C/svg%3E") no-repeat 16px center/20px}
     /* "PC" come filter chip di Material 3: contorno quando spento, pieno con la spunta quando acceso */
-    #al-ctrl .pc{position:relative;flex-direction:row;align-items:center;justify-content:center;gap:6px;min-height:48px;padding:0 12px;border:1px solid var(--ol);border-radius:8px;
+    #al-ctrl .pc{position:relative;flex-direction:row;align-items:center;justify-content:center;gap:6px;min-height:48px;padding:0 12px;border:1px solid var(--ol);border-radius:24px;
       background:transparent;color:var(--mu);font-size:14px;font-weight:500;letter-spacing:.1px;cursor:pointer;user-select:none}
     #al-ctrl .pc input{position:absolute;opacity:0;width:1px;height:1px;min-height:0;margin:0;padding:0;pointer-events:none}
     #al-ctrl .pc .ck{display:none;width:18px;height:18px}
@@ -199,7 +232,7 @@
         <option value="60" selected>1 ora</option><option value="120">2 ore</option><option value="180">3 ore</option></select></label>
       </div></div></div>
       <div class="g">
-      <label class="cerca"><input type="search" id="al-q" placeholder="Cerca aula (es. M3)" autocomplete="off" enterkeyhint="search" aria-label="Cerca un'aula"></label>
+      <label class="cerca"><input type="search" id="al-q" placeholder="Cerca aula" autocomplete="off" enterkeyhint="search" aria-label="Cerca un'aula"></label>
       <label class="pc" title="Mostra prima le aule con le prese per il PC"><input type="checkbox" id="al-pc"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>🔌 PC</span></label>
       </div>
     </div>
@@ -426,11 +459,10 @@
       perAula.get(a.id).imp.push(i);
     }
 
-    // Ricerca: ogni parola cercata deve essere l'inizio di una parola del nome dell'aula
-    const norm = x => String(x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    const q = norm($('#al-q').value).split(/[^a-z0-9]+/).filter(Boolean);
-    const trovata = a => { const parole = norm(a.desc || a.codice).split(/[^a-z0-9]+/).filter(Boolean);
-      return q.every(p => parole.some(w => w.startsWith(p))); };
+    const q = paroleCercate($('#al-q').value);
+    // prima la ricerca esatta; solo se non trova niente si tollera un errore di battitura
+    const approssima = q.length > 0 && ![...perAula.values()].some(x => !ESCLUDI_AULE.test(x.a.desc || '') && corrisponde(x.a, q));
+    const trovata = a => corrisponde(a, q, approssima);
 
     const libere = [], occupate = [];
     for (const { a, imp: lst } of perAula.values()) {
