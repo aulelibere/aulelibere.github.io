@@ -482,20 +482,23 @@
 
     // Università chiusa: nessuna lezione in questi edifici quel giorno, oppure l'ora scelta è
     // prima della prima lezione o dopo la fine dell'ultima (quindi nessuna aula è occupata).
+    // Dalle 21:00 è sempre chiusa.
     const impEd = [...new Map([...perAula.values()].filter(x => !ESCLUDI_AULE.test(x.a.desc || ''))
       .flatMap(x => x.imp).map(i => [i.id, i])).values()];
     const primo = impEd.length ? Math.min(...impEd.map(i => i.s)) : null;
     const ultimo = impEd.length ? Math.max(...impEd.map(i => i.e)) : null;
-    const chiusa = !occupate.length && !presto.length && (!impEd.length || t < primo || t >= ultimo);
+    const sera = h >= 21;
+    const chiusa = sera || (!occupate.length && !presto.length && (!impEd.length || t < primo || t >= ultimo));
     if (chiusa) {
       const quando = giornoSel.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
       const motivo = !impEd.length
         ? `Nessuna lezione in programma ${esc(quando)} in questi edifici.`
         : t < primo ? `Le lezioni di ${esc(quando)} iniziano alle ${hhmm(new Date(primo))}.`
-        : `Le lezioni di ${esc(quando)} sono finite alle ${hhmm(new Date(ultimo))}.`;
+        : t >= ultimo ? `Le lezioni di ${esc(quando)} sono finite alle ${hhmm(new Date(ultimo))}.`
+        : 'Dopo le 21:00 l\'università è chiusa.';
       $('#al-out').innerHTML = `<div class="al-closed"><div class="ic">🔒</div><h3>Università chiusa</h3><p>${motivo}</p>
         <p class="n">Prova a cambiare giorno o ora.</p></div>`;
-      status(`Nessuna aula occupata alle ${hhmm(new Date(t))}. ${origine}.`);
+      status(occupate.length || presto.length ? `${origine}.` : `Nessuna aula occupata alle ${hhmm(new Date(t))}. ${origine}.`);
       return;
     }
 
